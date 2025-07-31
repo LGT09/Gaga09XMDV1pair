@@ -1,14 +1,15 @@
 {
-  "name": "gaga09xmd-pair-site",
+  "name": "gaga09xmd-pairing-site",
   "version": "1.0.0",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.6.0",
     "express": "^4.18.2",
-    "pino": "^8.14.1",
+    "pino": "^8.17.0",
     "qrcode-terminal": "^0.12.0"
   }
 }
