@@ -1,18 +1,298 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Gaga09 XMD Pairing</title>
-  <link rel="stylesheet" href="/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LilGagaTraxx09 Panel v1 - Gaga09 XMD Bot</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
 </head>
 <body>
-  <div class="container">
-    <h1>Gaga09 XMD WhatsApp Bot</h1>
-    <p class="desc">Use this site to pair your bot via QR or session ID</p>
-    <div class="card">
-      <h3>Scan the QR in the terminal to pair your WhatsApp</h3>
-      <p>Make sure to keep the site running until pairing completes.</p>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <span class="logo-icon">🤖</span>
+                        <span class="logo-text">LilGagaTraxx09 Panel v1</span>
+                    </div>
+                    <div class="version-badge">Gaga09 XMD v4.2.0</div>
+                </div>
+                <div class="status-section">
+                    <div class="connection-status" id="connectionStatus">
+                        <span class="status-dot disconnected"></span>
+                        <span class="status-text">Disconnected</span>
+                    </div>
+                    <div class="memory-usage" id="memoryUsage">
+                        <span class="memory-text">RAM: 367.40MB / 63254MB</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- QR Pairing Section -->
+            <section class="card qr-section">
+                <div class="card-header">
+                    <h2 class="card-title">WhatsApp Pairing</h2>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" id="refreshQR">Refresh QR</button>
+                        <button class="btn btn-primary" id="pairQR">Generate QR</button>
+                        <button class="btn btn-outline" id="pairCode">Pair with Code</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <!-- Added pairing method tabs -->
+                    <div class="pairing-tabs">
+                        <button class="tab-btn active" data-tab="qr">QR Code</button>
+                        <button class="tab-btn" data-tab="code">Pairing Code</button>
+                    </div>
+                    
+                    <div class="tab-content active" id="qr-tab">
+                        <div class="qr-container" id="qrContainer">
+                            <div class="qr-placeholder">
+                                <div class="qr-icon">📱</div>
+                                <p>Click "Generate QR" to start pairing</p>
+                                <small>Scan with WhatsApp: Settings > Linked Devices > Link a Device</small>
+                            </div>
+                        </div>
+                        <div class="qr-actions" id="qrActions" style="display: none;">
+                            <button class="btn btn-outline" id="downloadQR">Download QR</button>
+                            <button class="btn btn-outline" id="copyQRString">Copy QR String</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Added pairing code tab -->
+                    <div class="tab-content" id="code-tab">
+                        <div class="pairing-code-section">
+                            <div class="form-group">
+                                <label for="phoneNumber">Phone Number (with country code)</label>
+                                <input type="tel" id="phoneNumber" class="form-input" 
+                                       placeholder="+263780078177" 
+                                       value="+263780078177">
+                                <small class="form-help">Enter your WhatsApp phone number with country code</small>
+                            </div>
+                            <button class="btn btn-primary" id="generatePairingCode">Generate Pairing Code</button>
+                            
+                            <div class="pairing-code-display" id="pairingCodeDisplay" style="display: none;">
+                                <div class="code-container">
+                                    <h4>Your Pairing Code:</h4>
+                                    <div class="pairing-code" id="pairingCodeValue">------</div>
+                                    <p class="code-instructions">
+                                        1. Open WhatsApp on your phone<br>
+                                        2. Go to Settings > Linked Devices<br>
+                                        3. Tap "Link a Device"<br>
+                                        4. Tap "Link with phone number instead"<br>
+                                        5. Enter this code
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Session Manager -->
+            <section class="card session-section">
+                <div class="card-header">
+                    <h2 class="card-title">Session Manager</h2>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" id="exportSession">Export Session</button>
+                        <button class="btn btn-primary" id="importSessionBtn">Import Session</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="session-list" id="sessionList">
+                        <div class="session-item">
+                            <div class="session-info">
+                                <span class="session-name">Default Session</span>
+                                <span class="session-status inactive">Inactive</span>
+                            </div>
+                            <div class="session-actions">
+                                <button class="btn btn-sm btn-outline">Export</button>
+                                <button class="btn btn-sm btn-danger">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="import-section" id="importSection" style="display: none;">
+                        <textarea class="import-textarea" id="sessionData" placeholder="Paste session data (JSON or Base64)..."></textarea>
+                        <div class="import-actions">
+                            <button class="btn btn-secondary" id="cancelImport">Cancel</button>
+                            <button class="btn btn-primary" id="confirmImport">Import</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Owner Configuration -->
+            <section class="card owner-section">
+                <div class="card-header">
+                    <h2 class="card-title">Owner Configuration</h2>
+                </div>
+                <div class="card-content">
+                    <div class="form-group">
+                        <label for="ownerNumbers">Owner Phone Numbers</label>
+                        <input type="text" id="ownerNumbers" class="form-input" 
+                               value="+263780078177, +263716857999" 
+                               placeholder="Enter owner numbers separated by commas">
+                        <small class="form-help">These numbers will have admin access to the bot</small>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" id="saveOwnerNumbers">Save Configuration</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Command Center -->
+            <section class="card command-section">
+                <div class="card-header">
+                    <h2 class="card-title">Command Center</h2>
+                </div>
+                <div class="card-content">
+                    <div class="command-input-group">
+                        <input type="text" id="commandInput" class="form-input" 
+                               placeholder="Enter command (e.g., .menu, .alive, .about)">
+                        <input type="text" id="targetNumber" class="form-input" 
+                               placeholder="Target number (optional)">
+                        <button class="btn btn-primary" id="executeCommand">Execute</button>
+                    </div>
+                    <div class="quick-commands">
+                        <button class="btn btn-sm btn-outline quick-cmd" data-cmd=".menu">Menu</button>
+                        <button class="btn btn-sm btn-outline quick-cmd" data-cmd=".alive">Alive</button>
+                        <button class="btn btn-sm btn-outline quick-cmd" data-cmd=".about">About</button>
+                        <button class="btn btn-sm btn-outline quick-cmd" data-cmd=".version">Version</button>
+                        <button class="btn btn-sm btn-outline quick-cmd" data-cmd=".help">Help</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Deploy Panel -->
+            <section class="card deploy-section">
+                <div class="card-header">
+                    <h2 class="card-title">Deployment Panel</h2>
+                </div>
+                <div class="card-content">
+                    <div class="repo-validator">
+                        <div class="form-group">
+                            <label for="repoUrl">GitHub Repository URL</label>
+                            <input type="url" id="repoUrl" class="form-input" 
+                                   placeholder="https://github.com/LGT09/your-repo">
+                            <small class="form-help">Only repositories from github.com/LGT09/* are accepted</small>
+                        </div>
+                        <button class="btn btn-secondary" id="validateRepo">Validate Repository</button>
+                    </div>
+                    
+                    <div class="deploy-platforms">
+                        <h3>Deploy to Platform</h3>
+                        <div class="platform-grid">
+                            <div class="platform-card" data-platform="heroku">
+                                <div class="platform-icon">🟣</div>
+                                <div class="platform-name">Heroku</div>
+                                <button class="btn btn-sm btn-primary">Deploy</button>
+                            </div>
+                            <div class="platform-card" data-platform="render">
+                                <div class="platform-icon">🟢</div>
+                                <div class="platform-name">Render</div>
+                                <button class="btn btn-sm btn-primary">Deploy</button>
+                            </div>
+                            <div class="platform-card" data-platform="railway">
+                                <div class="platform-icon">🚂</div>
+                                <div class="platform-name">Railway</div>
+                                <button class="btn btn-sm btn-primary">Deploy</button>
+                            </div>
+                            <div class="platform-card" data-platform="netlify">
+                                <div class="platform-icon">🌐</div>
+                                <div class="platform-name">Netlify</div>
+                                <button class="btn btn-sm btn-primary">Deploy</button>
+                            </div>
+                            <div class="platform-card" data-platform="koyeb">
+                                <div class="platform-icon">☁️</div>
+                                <div class="platform-name">Koyeb</div>
+                                <button class="btn btn-sm btn-primary">Deploy</button>
+                            </div>
+                            <div class="platform-card" data-platform="huggingface">
+                                <div class="platform-icon">🤗</div>
+                                <div class="platform-name">Hugging Face</div>
+                                <button class="btn btn-sm btn-primary">Deploy</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="deploy-actions">
+                        <button class="btn btn-secondary" id="createDeployZip">Create Deploy ZIP</button>
+                        <button class="btn btn-primary" id="showDeployInstructions">Show Instructions</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Console Logs -->
+            <section class="card console-section">
+                <div class="card-header">
+                    <h2 class="card-title">Bot Console</h2>
+                    <div class="card-actions">
+                        <button class="btn btn-secondary" id="clearLogs">Clear Logs</button>
+                        <button class="btn btn-outline" id="downloadLogs">Download Logs</button>
+                    </div>
+                </div>
+                <div class="card-content">
+                    <div class="console-container">
+                        <div class="console-output" id="consoleOutput">
+                            <div class="log-entry info">
+                                <span class="log-timestamp">[2025-01-08 12:00:00]</span>
+                                <span class="log-level">INFO</span>
+                                <span class="log-message">Gaga09 XMD Bot v4.2.0 initialized</span>
+                            </div>
+                            <div class="log-entry success">
+                                <span class="log-timestamp">[2025-01-08 12:00:01]</span>
+                                <span class="log-level">SUCCESS</span>
+                                <span class="log-message">Server running on port 3000</span>
+                            </div>
+                            <div class="log-entry warning">
+                                <span class="log-timestamp">[2025-01-08 12:00:02]</span>
+                                <span class="log-level">WARN</span>
+                                <span class="log-message">Waiting for WhatsApp connection...</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <p>Created by Lil Gaga Traxx09 copyright © 2025 — Gaga is the King</p>
+                    <p>Powered by Vincent Gaga a.k.a Lil Gaga Traxx09</p>
+                </div>
+                <div class="footer-links">
+                    <a href="https://whatsapp.com/channel/0029Vb6huGcJJhzUGbPbkN3W" target="_blank" class="footer-link">
+                        WhatsApp Channel
+                    </a>
+                    <a href="mailto:vincentganiza9@gmail.com" class="footer-link">Support</a>
+                </div>
+            </div>
+        </footer>
     </div>
-    <footer>Created by Lil Gaga Traxx09 &copy; 2025 — Gaga is the King</footer>
-  </div>
+
+    <!-- Modals -->
+    <div class="modal" id="deployModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Deploy Instructions</h3>
+                <button class="modal-close" id="closeDeployModal">&times;</button>
+            </div>
+            <div class="modal-body" id="deployInstructions">
+                <!-- Deploy instructions will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
 </body>
 </html>
